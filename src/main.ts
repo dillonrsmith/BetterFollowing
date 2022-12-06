@@ -1,4 +1,5 @@
 import { MastodonInfo } from "./getMastadonInfo";
+import { FollowMessage } from "./Messages/FollowMessage";
 import { MastodonUser } from "./Models/MastodonUser";
 
 
@@ -57,10 +58,52 @@ export function doTheThing() {
 
                     display_name.appendChild(display_name__account);
 
+                    account__displayname.appendChild(account__avatarwrapper);
                     account__displayname.appendChild(display_name);
 
-                    accountWrapper.appendChild(account__avatarwrapper);
                     accountWrapper.appendChild(account__displayname);
+
+
+                    let account__relationship = document.createElement('div');
+                    
+                    const followMessage : FollowMessage = {
+                        follow: true,
+                        id: user.acct,
+                        type: "FollowMessage"
+                    };
+                    let followButton = document.createElement('button');
+                    followButton.type = 'button';
+                    followButton.setAttribute('class', 'icon-button');
+                    followButton.setAttribute('style', 'font-size: 18px; width: 23.1429px; height: 23.1429px; line-height: 18px;');
+                    followButton.addEventListener('click', (ev: MouseEvent) => {chrome.runtime.sendMessage(followMessage)});
+                    
+                    let followButtonIcon = document.createElement('i');
+                    followButtonIcon.setAttribute('class', 'fa fa-user-plus fa-fw');
+                    followButton.appendChild(followButtonIcon);
+                    
+
+                    account__relationship.appendChild(followButton);
+
+                    const unfollowMessage : FollowMessage = {
+                        follow: false,
+                        id: user.acct,
+                        type: "FollowMessage"
+                    };
+                    let unfollowButton = document.createElement('button');
+                    unfollowButton.type = 'button';
+                    unfollowButton.setAttribute('class', 'icon-button active');
+                    unfollowButton.setAttribute('style', 'font-size: 18px; width: 23.1429px; height: 23.1429px; line-height: 18px;');                    
+                    unfollowButton.addEventListener('click', (ev: MouseEvent) => {chrome.runtime.sendMessage(unfollowMessage)});
+                    
+                    let unfollowButtonIcon = document.createElement('i');
+                    unfollowButtonIcon.setAttribute('class', 'fa fa-user-times fa-fw');
+
+
+                    unfollowButton.appendChild(unfollowButtonIcon);
+                    
+                    account__relationship.appendChild(unfollowButton);
+
+                    accountWrapper.appendChild(account__relationship);
 
                     account.appendChild(accountWrapper);
 

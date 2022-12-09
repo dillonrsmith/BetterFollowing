@@ -51,13 +51,19 @@ export async function RegisterApp(url: string): Promise<RegisterResponse>{
     return reg;
 }
 
-export async function Login(url: string){
-    let retPromise: Promise<void>;
+export async function Login(url: string){    
+    let retPromise: Promise<void> | any;    
     let reg = await RegisterApp(url);
+    
     chrome.identity.launchWebAuthFlow({
         url: `${url}/oauth/authorize?response_type=code&client_id=${encodeURIComponent(reg.client_id)}&redirect_uri=${encodeURIComponent(reg.redirect_uri)}&scope=read+follow`,     
         interactive: true   
-    }, HandleCallback);
+    }, (url) => retPromise = HandleCallback(url));
+
+    while(!retPromise){
+        await new Promise(f => setTimeout(f, 250));
+    }
+    await retPromise;
 }
 
 async function HandleCallback(url?: string){
@@ -81,5 +87,6 @@ async function HandleCallback(url?: string){
     });
 
     let r : AuthResponse = await resp.json();
-    chrome.storage.local.set({mstdn_auth: r});
+    chrome.storage.local.set({mstdn_auth: r});    
 }
+

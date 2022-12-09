@@ -5,7 +5,6 @@ import { MastodonUser } from "./Models/MastodonUser";
 
 export function doTheThing() {
 
-
     const thisUrl: string = document.location.origin;    
     if (document.location.href !== undefined && document.location.href.includes('following') && document.location.href.split('@').length === 3) {        
         let mi = new MastodonInfo();

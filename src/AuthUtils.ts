@@ -25,24 +25,23 @@ export async function RegisterApp(url: string): Promise<RegisterResponse>{
     }
 
     let redirectUri = chrome.identity.getRedirectURL();
+    redirectUri = redirectUri.substring(0, redirectUri.length - 1);
     let client_name = 'Better Following';
     let scopes = 'read follow';
     let website = 'https://github.com/dillonrsmith/BetterFollowing';
 
-    let body = [];
+    let body = new FormData();   
 
-    body.push(`${encodeURIComponent('redirect_uris')}=${encodeURIComponent(redirectUri)}`);
-    body.push(`${encodeURIComponent('client_name')}=${encodeURIComponent(client_name)}`);
-    body.push(`${encodeURIComponent('scopes')}=${scopes}`);
-    body.push(`${encodeURIComponent('website')}=${encodeURIComponent(website)}`);
+    body.append('client_name', client_name);
+    body.append('redirect_uris', redirectUri);
+    body.append('scopes', scopes);
+    body.append('website', website);
 
     let resp = await fetch(`${url}/api/v1/apps`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        body: body.join('&')
+        body: body
     });
+    console.log(resp);
 
     reg = await resp.json();
 
@@ -61,25 +60,22 @@ export async function Login(url: string){
 }
 
 async function HandleCallback(url?: string){
-    let authCode = url?.split('?')[1].split('=')[1] ?? '';
+    let authCode = decodeURIComponent(url?.split('?')[1].split('=')[1] ?? '');
 
     let reg: RegisterResponse = (await chrome.storage.local.get(['mstdnapp'])).mstdnapp;
     let mstdnUrl: string = (await chrome.storage.local.get(['mstdnuri'])).mstdnuri;
 
-    let body = [];
+    let body = new FormData();
 
-    body.push(`${encodeURIComponent('redirect_uri')}=${encodeURIComponent(reg.redirect_uri)}`);
-    body.push(`${encodeURIComponent('client_id')}=${encodeURIComponent(reg.client_id)}`);
-    body.push(`${encodeURIComponent('scope')}=read follow`);
-    body.push(`${encodeURIComponent('grant_type')}=${encodeURIComponent('authorization_code')}`);
-    body.push(`${encodeURIComponent('code')}=${encodeURIComponent(authCode)}`);
+    body.append('redirect_uri', reg.redirect_uri);
+    body.append('client_id', reg.client_id);
+    body.append('scope', 'read follow');
+    body.append('grant_type','authorization_code');
+    body.append('code', authCode);
 
     let resp = await fetch(`${mstdnUrl}/oauth/token`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        body: body.join('&')
+        body: body
     });
 
     let r : AuthResponse = await resp.json();

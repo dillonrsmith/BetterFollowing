@@ -29,10 +29,16 @@ export class MastodonInfo {
     public async getFollowingFromLink(link: string) : Promise<MastodonUser[]> {
         let resp = await fetch(link);
         let users : MastodonUser[] = await resp.json();
+        
         if(resp.headers.has('Link')){
-            let nextLink = resp.headers.get('Link')?.split(';')[0];
-            nextLink = nextLink?.substring(1);
-            this._nextLink = nextLink?.substring(0, nextLink.length - 1) ?? '';
+            let linkHeader = resp.headers.get('Link');
+            if(linkHeader?.includes('rel="next"') === true){
+                let nextLink = linkHeader?.split(';')[0];
+                nextLink = nextLink?.substring(1);
+                this._nextLink = nextLink?.substring(0, nextLink.length - 1) ?? '';            }
+            else {
+                this._nextLink = '';
+            }
         } else{
             this._nextLink = '';
         }

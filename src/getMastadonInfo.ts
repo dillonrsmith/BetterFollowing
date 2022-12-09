@@ -2,6 +2,12 @@ import { MastodonUser } from "./Models/MastodonUser";
 
 export class MastodonInfo {
 
+    private _nextLink: string = '';
+
+    public GetNextLink(): string {
+        return this._nextLink;
+    }
+
     public MastodonInfo() {
 
     }
@@ -17,13 +23,28 @@ export class MastodonInfo {
         let resp = await fetch(baseUrl + 'api/v1/accounts/lookup?acct=' + userId);
         let respBody : MastodonUser = await resp.json();
 
-        resp = await fetch(baseUrl + 'api/v1/accounts/' + respBody.id + '/following');
+        return await this.getFollowingFromLink(baseUrl + 'api/v1/accounts/' + respBody.id + '/following');
+    }
+
+    public async getFollowingFromLink(link: string) : Promise<MastodonUser[]> {
+        let resp = await fetch(link);
         let users : MastodonUser[] = await resp.json();
+        if(resp.headers.has('Link')){
+            let nextLink = resp.headers.get('Link')?.split(';')[0];
+            nextLink = nextLink?.substring(1);
+            this._nextLink = nextLink?.substring(0, nextLink.length - 1) ?? '';
+        } else{
+            this._nextLink = '';
+        }
         return users;
     }
 
-    private getMastodonInstance(webfinger: string) : string {
-        return webfinger.substring(webfinger.lastIndexOf('@') + 1);
+    public getMastodonInstance(webfinger: string | undefined) : string {
+        if(webfinger){
+            return webfinger.substring(webfinger.lastIndexOf('@') + 1);
+        } else{
+            return '';
+        }
     }
 
     private getUserId(webfinger: string): string{

@@ -52,9 +52,10 @@ export async function RegisterApp(url: string): Promise<RegisterResponse>{
 }
 
 export async function Login(url: string){
+    let retPromise: Promise<void>;
     let reg = await RegisterApp(url);
     chrome.identity.launchWebAuthFlow({
-        url: `${url}/oauth/authorize?response_type=code&client_id=${reg.client_id}&redirect_uri=${encodeURIComponent(reg.redirect_uri)}&scope=read+follow`,     
+        url: `${url}/oauth/authorize?response_type=code&client_id=${encodeURIComponent(reg.client_id)}&redirect_uri=${encodeURIComponent(reg.redirect_uri)}&scope=read+follow`,     
         interactive: true   
     }, HandleCallback);
 }
@@ -69,6 +70,7 @@ async function HandleCallback(url?: string){
 
     body.append('redirect_uri', reg.redirect_uri);
     body.append('client_id', reg.client_id);
+    body.append('client_secret', reg.client_secret);
     body.append('scope', 'read follow');
     body.append('grant_type','authorization_code');
     body.append('code', authCode);

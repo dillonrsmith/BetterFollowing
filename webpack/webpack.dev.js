@@ -29,7 +29,16 @@ module.exports = {
          patterns: [{
             from: path.resolve(__dirname, "..", "src", "manifest.json"),
             to: path.resolve(__dirname, "..", "dist", "manifest.json")
-         }]
+         },
+         {
+            from: path.resolve(__dirname, "..", "src", "popup.html"),
+            to: path.resolve(__dirname, "..", "dist", "popup.html")
+         },
+         {
+            from: path.resolve(__dirname, "..", "src", "React"),
+            to: path.resolve(__dirname, "..", "dist", "React")
+         },
+      ]
       }),
    ]
 };

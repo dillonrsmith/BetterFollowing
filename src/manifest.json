@@ -15,6 +15,6 @@
     "host_permissions": ["https://*/*"],
     "action": {
         "default_title": "main",
-        "default_popup":"popup.html"
+        "default_popup":"index.html"
     }
 }

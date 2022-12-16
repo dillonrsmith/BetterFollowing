@@ -31,12 +31,12 @@ module.exports = {
             to: path.resolve(__dirname, "..", "dist", "manifest.json")
          },
          {
-            from: path.resolve(__dirname, "..", "src", "popup.html"),
-            to: path.resolve(__dirname, "..", "dist", "popup.html")
+            from: path.resolve(__dirname, "..", "src", "React", "popup", "build", "index.html"),
+            to: path.resolve(__dirname, "..", "dist")
          },
          {
-            from: path.resolve(__dirname, "..", "src", "React"),
-            to: path.resolve(__dirname, "..", "dist", "React")
+            from: path.resolve(__dirname, "..", "src", "React", "popup", "build", "static"),
+            to: path.resolve(__dirname, "..", "dist", "static")
          },
       ]
       }),

@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "buildDev": "webpack --config webpack/webpack.dev.js",
-    "buildProd": "webpack --config webpack/webpack.prod.js"
+    "buildDev": "(npm run build --prefix src/React/popup) & (webpack --config webpack/webpack.dev.js)",
+    "buildProd": "(npm run build --prefix src/React/popup) & webpack --config webpack/webpack.prod.js"
   },
   "keywords": [],
   "author": "",

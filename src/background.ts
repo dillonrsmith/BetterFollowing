@@ -1,10 +1,16 @@
-// import { TabChanged } from "./Models/TabChanged";
-// import {doTheThing} from "./main";
-// import { url } from "inspector";
-// import {MastodonInfo} from "./getMastadonInfo";
-import {MastodonUser} from "./Models/MastodonUser";
+import {HandleMessages} from './HandleMessages';
 
 chrome.tabs.onUpdated.addListener(handleUrlChanged);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    HandleMessages(request, sender).then(s => {
+        if(s){
+            sendResponse(s);
+        }
+        sendResponse('');
+    });
+    return true;
+});
+
 
 export async function handleUrlChanged(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) : Promise<void>{    
     const t = await chrome.tabs.get(tabId);

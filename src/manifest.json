@@ -8,8 +8,13 @@
     "permissions": [
         "tabs",
         "activeTab",
-        "scripting"
+        "scripting",
+        "storage",
+        "identity"
     ],
     "host_permissions": ["https://*/*"],
-    "action": {}
+    "action": {
+        "default_title": "main",
+        "default_popup":"index.html"
+    }
 }

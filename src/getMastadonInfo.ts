@@ -16,9 +16,13 @@ export class MastodonInfo {
         if(webfinger === null || webfinger === undefined) {
             return [];
         }
+        
         let userId = this.getUserId(webfinger);
         let mstdnInstance = this.getMastodonInstance(webfinger);
         let baseUrl = 'https://' + mstdnInstance + '/';
+        console.log(`userId: ${userId}`);
+        console.log(`mstdnInstance: ${mstdnInstance}`);
+        console.log(`baseUrl: ${baseUrl}`);
 
         let resp = await fetch(baseUrl + 'api/v1/accounts/lookup?acct=' + userId);
         let respBody : MastodonUser = await resp.json();

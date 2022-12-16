@@ -20,7 +20,7 @@ module.exports = {
          {
             test: /\.tsx?$/,
             loader: "ts-loader",
-            exclude: /node_modules/,
+            exclude: ['/node_modules/', '/src/popup/'],
          },
       ],
    },
@@ -31,11 +31,11 @@ module.exports = {
             to: path.resolve(__dirname, "..", "dist", "manifest.json")
          },
          {
-            from: path.resolve(__dirname, "..", "src", "React", "popup", "build", "index.html"),
+            from: path.resolve(__dirname, "..", "src", "popup", "build", "index.html"),
             to: path.resolve(__dirname, "..", "dist")
          },
          {
-            from: path.resolve(__dirname, "..", "src", "React", "popup", "build", "static"),
+            from: path.resolve(__dirname, "..", "src", "popup", "build", "static"),
             to: path.resolve(__dirname, "..", "dist", "static")
          },
       ]

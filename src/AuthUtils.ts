@@ -3,16 +3,19 @@ import { AuthResponse } from "./Models/AuthResponse";
 import { RegisterResponse } from "./Models/RegisterResponse";
 
 export async function IsLoggedIn() : Promise<IsLoggedInResponse> {
-    let token = await chrome.storage.local.get('auth_token');
-    if(token){
+    let token = await chrome.storage.local.get('mstdn_auth');
+    let uri = await chrome.storage.local.get('mstdnuri');
+    if(token && uri){
         return {
             loggedIn: true,
-            type: "IsLoggedInResponse"
+            type: "IsLoggedInResponse",
+            url: uri.mstdnuri
         };
     }
     return {
         loggedIn: false,
-        type: 'IsLoggedInResponse'
+        type: 'IsLoggedInResponse',
+        url: ''
     };
 }
 

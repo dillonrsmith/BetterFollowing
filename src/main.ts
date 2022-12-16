@@ -1,26 +1,45 @@
 import { MastodonInfo } from "./getMastadonInfo";
-import { FollowMessage } from "./Messages/FollowMessage";
+import { FollowMessage, GetFollowingResponse } from "./Messages/FollowMessage";
+import { IsLoggedInResponse } from "./Messages/IsLoggedIn";
 import { MastodonUser } from "./Models/MastodonUser";
 
 
-export function doTheThing() {
 
+export async function doTheThing() {
     const thisUrl: string = document.location.origin;    
+    
+    let isLoggedIn: IsLoggedInResponse = await chrome.runtime.sendMessage({
+        type: 'IsLoggedInRequest'
+    });
+
+    let followers: GetFollowingResponse = await chrome.runtime.sendMessage({
+        type: 'GetFollowingMessage'
+    });
+
+    window.Following = followers.following
+
     if (document.location.href !== undefined && document.location.href.includes('following') && document.location.href.split('@').length === 3) {        
         let mi = new MastodonInfo();
         let wf = getWebfinger(document.location.href);
         mi.getFollowing(wf).then((value: MastodonUser[]) => {
-            addUsersToScreen(value, thisUrl, mi, wf);
+            addUsersToScreen(value, thisUrl, mi, wf, isLoggedIn);
         }, (reason: any) => {
 
         });
     }
-    else{
+    else {
 
     }
 }
-function addUsersToScreen(value: MastodonUser[], thisUrl: string, mi: MastodonInfo, wf: string | undefined): void{
+function addUsersToScreen(value: MastodonUser[], thisUrl: string, mi: MastodonInfo, wf: string | undefined, isLoggedIn: IsLoggedInResponse): void{
     let feed = document.querySelector('[role="feed"]');
+    if(!feed){
+        feed = document.querySelector('.empty-column-indicator');
+        feed?.setAttribute('class', 'item-list');
+        feed?.setAttribute('role', 'feed');
+    }
+
+    
 
     let nextLoaderOld = document.getElementById('nextLoader');
     if(nextLoaderOld){
@@ -86,46 +105,70 @@ function addUsersToScreen(value: MastodonUser[], thisUrl: string, mi: MastodonIn
         accountWrapper.appendChild(account__displayname);
 
 
-        let account__relationship = document.createElement('div');
+        if(isLoggedIn.loggedIn){
+            let account__relationship = document.createElement('div');
         
-        const followMessage : FollowMessage = {
-            follow: true,
-            id: user.acct,
-            type: "FollowMessage"
-        };
-        let followButton = document.createElement('button');
-        followButton.type = 'button';
-        followButton.setAttribute('class', 'icon-button');
-        followButton.setAttribute('style', 'font-size: 18px; width: 23.1429px; height: 23.1429px; line-height: 18px;');
-        followButton.addEventListener('click', (ev: MouseEvent) => {chrome.runtime.sendMessage(followMessage)});
-        
-        let followButtonIcon = document.createElement('i');
-        followButtonIcon.setAttribute('class', 'fa fa-user-plus fa-fw');
-        followButton.appendChild(followButtonIcon);
-        
+            const followMessage : FollowMessage = {
+                follow: true,
+                id: user.acct,
+                type: "FollowMessage"
+            };
+            let style = 'font-size: 18px; width: 23.1429px; height: 23.1429px; line-height: 18px;';
+            let hiddenStyle = `${style} display: hidden`;            
 
-        account__relationship.appendChild(followButton);
-
-        const unfollowMessage : FollowMessage = {
-            follow: false,
-            id: user.acct,
-            type: "FollowMessage"
-        };
-        let unfollowButton = document.createElement('button');
-        unfollowButton.type = 'button';
-        unfollowButton.setAttribute('class', 'icon-button active');
-        unfollowButton.setAttribute('style', 'font-size: 18px; width: 23.1429px; height: 23.1429px; line-height: 18px;');                    
-        unfollowButton.addEventListener('click', (ev: MouseEvent) => {chrome.runtime.sendMessage(unfollowMessage)});
-        
-        let unfollowButtonIcon = document.createElement('i');
-        unfollowButtonIcon.setAttribute('class', 'fa fa-user-times fa-fw');
-
-
-        unfollowButton.appendChild(unfollowButtonIcon);
-        
-        account__relationship.appendChild(unfollowButton);
-
-        accountWrapper.appendChild(account__relationship);
+            let followButton = document.createElement('button');
+            followButton.type = 'button';
+            followButton.setAttribute('class', 'icon-button');
+            if (window.Following.find(s => s.acct == userId)){
+                followButton.setAttribute('style', hiddenStyle);
+            } else{
+                followButton.setAttribute('style', style);
+            }
+            
+            followButton.addEventListener('click', (ev: MouseEvent) => {
+                chrome.runtime.sendMessage(followMessage);
+                unfollowButton.setAttribute('style', style);
+                followButton.setAttribute('style', hiddenStyle);
+                window.Following.push(user);
+            });
+            
+            
+            let followButtonIcon = document.createElement('i');
+            followButtonIcon.setAttribute('class', 'fa fa-user-plus fa-fw');
+            followButton.appendChild(followButtonIcon);
+            
+    
+            account__relationship.appendChild(followButton);
+    
+            const unfollowMessage : FollowMessage = {
+                follow: false,
+                id: user.acct,
+                type: "FollowMessage"
+            };
+            let unfollowButton = document.createElement('button');
+            unfollowButton.type = 'button';
+            unfollowButton.setAttribute('class', 'icon-button active');
+            if (window.Following.find(s => s.acct == userId)){
+                unfollowButton.setAttribute('style', style);
+            } else{
+                unfollowButton.setAttribute('style', hiddenStyle);
+            }                  
+            unfollowButton.addEventListener('click', (ev: MouseEvent) => {
+                chrome.runtime.sendMessage(unfollowMessage);
+                unfollowButton.setAttribute('style', hiddenStyle);
+                followButton.setAttribute('style', style);
+                window.Following = window.Following.filter(s => s.acct !== userId);
+            });
+            
+            let unfollowButtonIcon = document.createElement('i');
+            unfollowButtonIcon.setAttribute('class', 'fa fa-user-times fa-fw');    
+    
+            unfollowButton.appendChild(unfollowButtonIcon);
+            
+            account__relationship.appendChild(unfollowButton);
+    
+            accountWrapper.appendChild(account__relationship);
+        }        
 
         account.appendChild(accountWrapper);
 
@@ -154,10 +197,13 @@ function addUsersToScreen(value: MastodonUser[], thisUrl: string, mi: MastodonIn
 
 async function windowScrolled(ev: Event) : Promise<void> {
     if(window.NextLink && window.IsRunning === false && isInViewport(document.getElementById('nextLoader')!)){
+        let isLoggedIn: IsLoggedInResponse = await chrome.runtime.sendMessage({
+            type: 'IsLoggedInRequest'
+        });
         window.IsRunning = true;
         let mi = new MastodonInfo();
         let followers = await mi.getFollowingFromLink(window.NextLink!);
-        addUsersToScreen(followers, window.location.origin, mi, window.WebFinger);
+        addUsersToScreen(followers, window.location.origin, mi, window.WebFinger, isLoggedIn);
     }
 }
 declare global {
@@ -165,6 +211,7 @@ declare global {
          NextLink: string | undefined;
          IsRunning: boolean;
          WebFinger: string | undefined;
+         Following: MastodonUser[]
         }
 }
 

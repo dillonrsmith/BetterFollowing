@@ -9,6 +9,7 @@ export function IsLoggedInRequestMessage(obj: any): obj is IsLoggedInRequest {
 export interface IsLoggedInResponse{
     type: 'IsLoggedInResponse';
     loggedIn: boolean;
+    url: string;
 }
 
 export function IsLoggedInResponseMessage(obj: any): obj is IsLoggedInResponse {

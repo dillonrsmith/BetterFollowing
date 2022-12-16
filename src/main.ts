@@ -114,7 +114,7 @@ function addUsersToScreen(value: MastodonUser[], thisUrl: string, mi: MastodonIn
                 type: "FollowMessage"
             };
             let style = 'font-size: 18px; width: 23.1429px; height: 23.1429px; line-height: 18px;';
-            let hiddenStyle = `${style} display: hidden`;            
+            let hiddenStyle = `${style} display: none;`;            
 
             let followButton = document.createElement('button');
             followButton.type = 'button';

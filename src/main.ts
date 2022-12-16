@@ -216,7 +216,10 @@ declare global {
 }
 
 function isInViewport(element: HTMLElement) {
-    var rect = element.getBoundingClientRect();
+    if(!element){
+        return false;
+    }
+    var rect = element?.getBoundingClientRect();
     var html = document.documentElement;
     return (
       rect.top >= 0 &&

@@ -1,4 +1,5 @@
 const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin'); 
 const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
    mode: "production",
@@ -28,7 +29,15 @@ module.exports = {
          patterns: [{
             from: path.resolve(__dirname, "..", "src", "manifest.json"),
             to: path.resolve(__dirname, "..", "dist", "manifest.json")
-         }]
+         },
+         {
+            from: path.resolve(__dirname, "..", "src", "popup", "build", "index.html"),
+            to: path.resolve(__dirname, "..", "dist")
+         },
+         {
+            from: path.resolve(__dirname, "..", "src", "popup", "build", "static"),
+            to: path.resolve(__dirname, "..", "dist", "static")
+         },]
       }),
    ]
 };

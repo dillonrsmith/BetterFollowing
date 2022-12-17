@@ -4,6 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
+    "buildReact": "npm run build --prefix src/popup",
+    "buildScripts": "webpack --config webpack/webpack.dev.js",
     "buildDev": "(npm run build --prefix src/popup) & webpack --config webpack/webpack.dev.js",
     "buildProd": "(npm run build --prefix src/popup) & webpack --config webpack/webpack.prod.js"
   },
@@ -12,6 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "0.0.203",
+    "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.3",
